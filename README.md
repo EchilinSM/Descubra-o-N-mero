@@ -25,3 +25,5 @@ Agradecimento Especial 💙
 Este jogo foi desenvolvido com inspiração no código de Gustavo Neitzke. Agradeço pela referência e contribuição para a construção deste projeto! Seu trabalho foi fundamental para aprimorar a experiência do jogo.
 
 🎮 Obrigado, Gustavo! 🚀
+
+visite: github.com/Gutoneitzke
