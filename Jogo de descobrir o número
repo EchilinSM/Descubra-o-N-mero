@@ -10,55 +10,100 @@ HTML
 </head>
 <body>
     <div class="content">
-        <h1>Descobrir o número de 0 a 100</h1>
+        <h1>Descubra o número de 0 a 100</h1>
+        <p id="record">🏆 Recorde: Nenhum</p>
         <input type="number" placeholder="Digite um número" id="bet">
         <button onclick="verifyNumber()">Enviar</button>
+        <button onclick="giveHint()">Dica</button>
+        <button onclick="refresh()">🔄 Reiniciar</button>
+        <p id="feedback"></p>
+        <p id="attempts">Tentativas restantes: 10</p>
     </div>
 </body>
-<script>
 
+<script>
     var numberToFind = 0;
     var attempts = 0;
+    var maxAttempts = 10;
+    var bestScore = localStorage.getItem('bestScore') || Infinity;
 
-    function refresh(){
-        var element = document.getElementById('bet');
-        element.value = '';
-        
+    function refresh() {
         numberToFind = parseInt(Math.random() * 100);
-        vattempts = 0;
-
-        console.log('The number to find: '+numberToFind);
+        attempts = 0;
+        document.getElementById('bet').value = '';
+        document.getElementById('feedback').innerText = '';
+        document.getElementById('attempts').innerText = "Tentativas restantes: " + maxAttempts;
+        updateRecordDisplay();
+        console.log('Número para encontrar: ' + numberToFind);
     }
 
-    refresh();
-
-    function verifyNumber(){
+    function verifyNumber() {
         var element = document.getElementById('bet');
-        var bet = element.value;
+        var bet = Number(element.value);
 
-        if(bet > 100 || bet < 0)
-        {
-            alert('Aposta é inválida');
+        if (bet > 100 || bet < 0 || isNaN(bet)) {
+            updateFeedback('⚠️ Aposta inválida!', 'red');
             return;
         }
 
-        if(bet > numberToFind)
-        {
-            attempts++;
-            alert('🚨 O número para ser encontrado é MENOR');
+        attempts++;
+        document.getElementById('attempts').innerText = "Tentativas restantes: " + (maxAttempts - attempts);
+
+        if (bet > numberToFind) {
+            updateFeedback('📉 O número é MENOR!', 'orange');
+        } else if (bet < numberToFind) {
+            updateFeedback('📈 O número é MAIOR!', 'blue');
+        } else {
+            updateFeedback('🎉 Parabéns! Você acertou em ' + attempts + ' tentativas!', 'green');
+
+            if (attempts < bestScore) {
+                bestScore = attempts;
+                localStorage.setItem('bestScore', bestScore);
+                alert('🥇 Novo recorde: ' + bestScore + ' tentativas!');
+            }
+            refresh();
+            return;
         }
-        else if(bet < numberToFind)
-        {
-            attempts++;
-            alert('🚨 O número para ser encontrado é MAIOR')
-        }
-        else
-        {
-            alert('✅ Parabéns você acertou!! Com '+attempts+' erros!');
+
+        if (attempts >= maxAttempts) {
+            updateFeedback('💀 Você perdeu! O número era ' + numberToFind, 'red');
             refresh();
         }
     }
 
+    function giveHint() {
+        var element = document.getElementById('bet');
+        var bet = Number(element.value);
+
+        if (isNaN(bet) || bet < 0 || bet > 100) {
+            updateFeedback('Digite um número válido para receber uma dica.', 'red');
+            return;
+        }
+
+        var difference = Math.abs(bet - numberToFind);
+
+        if (difference === 0) {
+            updateFeedback('🎉 Você já acertou!', 'green');
+        } else if (difference <= 5) {
+            updateFeedback('🔥 Está muito perto!', 'orange');
+        } else if (difference <= 15) {
+            updateFeedback('⚡ Está relativamente perto.', 'blue');
+        } else {
+            updateFeedback('❄️ Está longe.', 'gray');
+        }
+    }
+
+    function updateFeedback(message, color) {
+        var feedback = document.getElementById('feedback');
+        feedback.innerText = message;
+        feedback.style.color = color;
+    }
+
+    function updateRecordDisplay() {
+        document.getElementById('record').innerText = '🏆 Recorde: ' + (bestScore === Infinity ? 'Nenhum' : bestScore + ' tentativas');
+    }
+
+    refresh();
 </script>
 </html>
 
